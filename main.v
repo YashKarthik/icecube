@@ -12,7 +12,8 @@ module main (
 
     wire baud_clk;
     wire mat_ready;
-    wire recvd;
+    wire [7:0] mat_tx;
+    wire tx_ready;
     wire LED_R_inv;
     wire LED_G_inv;
     wire LED_B_inv;
@@ -39,7 +40,16 @@ module main (
         .i_rst(~SW[0]),
         .i_data(mat_cells),
         .o_mat(mat_in),
-        .o_recvd(recvd)
+        .o_recvd(LED_G_inv)
+    );
+
+    tx_buffer tx_buff (
+        .i_clk(clk),
+        .i_rst(~SW[0]),
+        .i_next(LED_R),
+        .i_mat(mat_out),
+        .o_data(mat_tx),
+        .o_ready(tx_ready)
     );
 
     receiver uart_rx(
@@ -54,7 +64,7 @@ module main (
         .i_clk(baud_clk),
         .i_tx_start(mat_ready),
         .busy(LED_R_inv),
-        .i_data(mat_out),
+        .i_data(mat_tx),
         .o_data(TX)
     );
 
@@ -68,7 +78,7 @@ module main (
     );
 
     always @ (posedge clk) begin
-        if (recvd) begin
+        if (LED_B) begin
             if (state == 0) begin
                 mat_a <= mat_in;
                 state <= 1;
