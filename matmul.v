@@ -3,10 +3,10 @@
 module matmul (
     input wire i_clk,
     input wire i_trigger,
-    input wire [6:0] i_a [9],
-    input wire [6:0] i_b [9],
+    input wire [7:0] i_a [9],
+    input wire [7:0] i_b [9],
     output wire o_ready,
-    output reg [6:0] o_result [9]
+    output reg [7:0] o_result [9]
 );
     localparam
         READY        = 1'b0,
@@ -14,9 +14,9 @@ module matmul (
 
     reg state = READY;
     /* matrix [row][column] */
-    reg [6:0] mat_a [9];
-    reg [6:0] mat_b [9];
-    reg [6:0] mat_res [9];
+    reg [7:0] mat_a [9];
+    reg [7:0] mat_b [9];
+    reg [7:0] mat_res [9];
 
     integer row;
     integer col;
