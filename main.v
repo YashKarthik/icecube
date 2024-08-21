@@ -22,6 +22,7 @@ module main (
     wire [7:0] mat_cells;
 
     reg state = 0;
+    reg trigger = 0;
     reg [7:0] mat_a [9];
     reg [7:0] mat_b [9];
 
@@ -35,12 +36,29 @@ module main (
         .o_clk(baud_clk)
     );
 
+    receiver uart_rx(
+        .i_clk(clk),
+        .i_rx(RX),
+        .i_rst(~SW[0]),
+        .o_data(mat_cells),
+        .ready(LED_B_inv)
+    );
+
     buffer mat_buff(
         .i_clk(clk),
         .i_rst(~SW[0]),
         .i_data(mat_cells),
         .o_mat(mat_in),
         .o_recvd(LED_G_inv)
+    );
+
+    matmul multiplier(
+        .i_clk(clk),
+        .i_trigger(trigger),
+        .i_a(mat_a),
+        .i_b(mat_b),
+        .o_ready(mat_ready),
+        .o_result(mat_out)
     );
 
     tx_buffer tx_buff (
@@ -52,38 +70,25 @@ module main (
         .o_ready(tx_ready)
     );
 
-    receiver uart_rx(
-        .i_clk(clk),
-        .i_rx(RX),
-        .i_rst(~SW[0]),
-        .o_data(mat_cells),
-        .ready(LED_B_inv)
-    );
-
     transmitter uart_tx(
         .i_clk(baud_clk),
-        .i_tx_start(mat_ready),
+        .i_tx_start(tx_ready),
         .busy(LED_R_inv),
         .i_data(mat_tx),
         .o_data(TX)
     );
 
-    matmul multiplier(
-        .i_clk(clk),
-        .i_trigger(LED_G_inv),
-        .i_a(mat_a),
-        .i_b(mat_b),
-        .o_ready(mat_ready),
-        .o_result(mat_out)
-    );
 
     always @ (posedge clk) begin
-        if (LED_B) begin
+        if (~LED_G) begin
             if (state == 0) begin
                 mat_a <= mat_in;
                 state <= 1;
+                trigger <= 0;
             end else begin
                 mat_b <= mat_in;
+                state <= 0;
+                trigger <= 1;
             end
         end
     end

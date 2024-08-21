@@ -18,9 +18,14 @@ module buffer(
         if (i_rst) begin
             w_addr <= 0;
             for (i=0; i<10; i=i+1) memory[i] <= 0;
-        end else if (i_data != memory[w_addr]) begin
-            memory[w_addr + 1] <= i_data;
-            w_addr <= w_addr + 1;
+        end else begin
+            if (w_addr == 9) begin
+                memory[0] <= i_data;
+                w_addr <= 1;
+            end else  begin
+                memory[w_addr] <= i_data;
+                w_addr <= w_addr + 1;
+            end
         end
     end
 
