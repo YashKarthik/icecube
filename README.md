@@ -9,3 +9,5 @@ Matrix multiplication on icesugar fpga.
 4. Result is passed into `tx_buff` via `mat_out`. Output of this buffer is controlled by a ptr,
    which can be advanced using `i_next`.
 5. The ptr is signalled using a feedback loop from the tx, which signals busy-ness using ledr.
+
+write py script for comms with serial
